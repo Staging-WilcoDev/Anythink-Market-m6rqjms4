@@ -1,0 +1,19 @@
+{
+  "name": "chat-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/app.ts",
+  "scripts": {
+    "build": "tsc -b",
+    "start": "node build/app.js",
+    "dev": "yarn build --watch & yarn start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@azure/openai": "^1.0.0-beta.8",
+    "express-slow-down": "^2.0.1",
+    "mongodb-chatbot-server": "^0.2.1"
+  }
+}
