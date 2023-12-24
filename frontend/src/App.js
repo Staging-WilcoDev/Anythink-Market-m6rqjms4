@@ -10,7 +10,7 @@ function App() {
             <h1>
                 MongoDB AI Assistant
             </h1>
-            <Chatbot serverBaseUrl={"http://localhost:3000/api/v1"}>
+            <Chatbot serverBaseUrl={`${process.env.REACT_APP_BACKEND_URL}/api/v1`}>
                 <FloatingActionButtonTrigger text="My MongoDB AI" />
                 <ModalView
                     initialMessageText="Welcome to MongoDB AI Assistant. What can I help you with?"

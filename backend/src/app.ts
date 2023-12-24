@@ -143,7 +143,10 @@ const startServer = async () => {
 };
 
 try {
-    await startServer();
+    // await startServer();
+startServer().then(()=>console.log('running')
+)
+
 } catch (e) {
     logger.error(`Fatal error: ${e}`);
     process.exit(1);
