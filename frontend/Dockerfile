@@ -4,5 +4,5 @@ RUN curl https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for
 
 RUN chmod +x /wait-for-it.sh
 
-WORKDIR /usr/src/backend
+WORKDIR /usr/src/frontend
 RUN yarn install

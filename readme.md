@@ -17,5 +17,3 @@ When implementing a new feature or fixing a bug, please create a new pull reques
 2. [Install Docker Compose](https://docs.docker.com/compose/install/)
 3. Run `docker-compose up`. 
 
-## Tests
-Documentation about running the End to End test can be found under the `/tests` directory
