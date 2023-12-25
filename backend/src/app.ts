@@ -33,10 +33,7 @@ export const systemPrompt: SystemPrompt = {
     content: `You are a helful assitant with great knowledge about movies.
             Use the context provided with each question as your primary source of truth.
             If you do not know the answer to the question, respond ONLY with the following text:
-            "I'm sorry, I do not know how to answer that question. Please try to rephrase your query. You can also refer to the further reading to see if it helps."
-            NEVER include links in your answer.
-
-`
+            "I'm sorry, I do not know how to answer that question. Please try to rephrase your query. You can also refer to the further reading to see if it helps."`
 
 };
 
@@ -47,9 +44,6 @@ export async function generateUserPrompt({
     question: string;
     chunks: string[];
 }): Promise<OpenAiChatMessage & { role: "user" }> {
-    console.log("context>>>>>>>>>>>\n", chunks)
-    console.log("context<<<<<<<<<<<\n")
-
     const chunkSeparator = "~~~~~~";
     const context = chunks.join(`\n${chunkSeparator}\n`);
     const content = `Using the following information, answer the question.
@@ -63,7 +57,6 @@ export async function generateUserPrompt({
   ${question}
   <End Question>`;
 
-  console.log("PROMPT >>>>>\n",content)
     return { role: "user", content };
 }
 
@@ -100,8 +93,8 @@ export const findContent = makeDefaultFindContentFunc({
     embedder: embed,
     store: embeddedContentStore,
     findNearestNeighborsOptions: {
-        k: 1,
-        path: "embedding", // TODO "embedding",
+        k: 3,
+        path: "embedding", 
         indexName: VECTOR_SEARCH_INDEX_NAME,
         minScore: 0.9,
     },
@@ -146,10 +139,7 @@ const startServer = async () => {
 };
 
 try {
-    // await startServer();
-startServer().then(()=>console.log('running')
-)
-
+    startServer()
 } catch (e) {
     logger.error(`Fatal error: ${e}`);
     process.exit(1);
