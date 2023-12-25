@@ -10,7 +10,7 @@ function App() {
             <h1>
                 MongoDB AI Assistant
             </h1>
-            <Chatbot serverBaseUrl={`${process.env.REACT_APP_BACKEND_URL}/api/v1`} width={"50%"}>
+            <Chatbot serverBaseUrl={`${process.env.REACT_APP_BACKEND_URL}/api/v1`}>
                 <FloatingActionButtonTrigger text="My MongoDB AI"/>
                 <ModalView
                     initialMessageText="Welcome to MongoDB Movie Expert AI Assistant. What can I help you with?"
@@ -27,7 +27,6 @@ function App() {
     </div>
   );
 }
-
 
 
 export default App;
