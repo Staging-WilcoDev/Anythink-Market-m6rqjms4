@@ -15,8 +15,8 @@ function App() {
                 <ModalView
                     initialMessageText="Welcome to MongoDB Movie Expert AI Assistant. What can I help you with?"
                     initialMessageSuggestedPrompts={[
-                        "Can you name a movie with a storyline set in Antartica?",
-                        "What was the name of the movie with the superhero that could shrink himself?",
+                        "Can you name a movie with a storyline set on the planet \"Mongo\"?",
+                        "Can you give example of a bank robbery movie?",
                     ]}
                 />
             </Chatbot>
