@@ -3,7 +3,7 @@ services:
   anythink-backend-node:
     build: ./backend
     container_name: anythink-backend-node
-    command: sh -c "cd backend && npm install && npm run build && npm start"
+    command: sh -c "cd backend && npm install && npm run build && npm run dev"
 
     environment:
       - NODE_ENV=development

@@ -135,9 +135,6 @@ const config: AppConfig = {
     generateUserPrompt,
   },
   maxRequestTimeoutMs: 30000,
-  corsOptions: {
-    origin: "*",
-  },
 };
 
 const PORT = process.env.PORT || 3000;

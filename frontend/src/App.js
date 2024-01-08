@@ -26,7 +26,7 @@ function App() {
                     </h1>
                 </div>
 
-                <Chatbot serverBaseUrl={`http://localhost:3000/api/v1`}>
+                <Chatbot serverBaseUrl={`${process.env.REACT_APP_BACKEND_URL}/api/v1`}>
                         <InputBarTrigger suggestedPrompts={suggestedPrompts} />
                     <ModalView
                         initialMessageText="Welcome to MongoDB Movie Expert AI Assistant. What can I help you with?"
