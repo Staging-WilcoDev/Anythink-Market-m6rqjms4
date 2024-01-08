@@ -4,7 +4,7 @@
  the conversation into the following data type.
  */
 export interface MongoDbUserQueryPreprocessorResponse {
-    /**
+  /**
      One or more programming languages present in the content ordered by
      relevancy. If no programming language is present and the user is asking for
      a code example, include "shell".
@@ -12,9 +12,9 @@ export interface MongoDbUserQueryPreprocessorResponse {
      "cpp", "ruby", "kotlin", "c", "dart", "php", "rust", "scala", "swift"
      ...other popular programming languages ]
      */
-    programmingLanguages: string[];
+  programmingLanguages: string[];
 
-    /**
+  /**
      One or more MongoDB products present in the content. Which MongoDB products
      is the user interested in? Order by relevancy. Include "Driver" if the user
      is asking about a programming language with a MongoDB driver.
@@ -22,9 +22,9 @@ export interface MongoDbUserQueryPreprocessorResponse {
      Framework", "MongoDB Server", "Compass", "MongoDB Connector for BI", "Realm
      SDK", "Driver", "Atlas App Services", ...other MongoDB products]
      */
-    mongoDbProducts: string[];
+  mongoDbProducts: string[];
 
-    /**
+  /**
      Using your knowledge of MongoDB and the conversational context, rephrase the
      latest user query to make it more meaningful. Rephrase the query into a
      question if it's not already one. The query generated here is passed to
@@ -46,9 +46,9 @@ export interface MongoDbUserQueryPreprocessorResponse {
      User input: "Whispering dandelions compose sonnets in the language of breezy summers."
      Output query: undefined
      */
-    query?: string;
+  query?: string;
 
-    /**
+  /**
      Set to `true` if the following is true of the user query:
      - It is hostile/offensive
      - It disparages MongoDB or its products.
@@ -67,5 +67,5 @@ export interface MongoDbUserQueryPreprocessorResponse {
      User input: "Whispering dandelions compose sonnets in the language of breezy summers."
      Output rejectQuery: true
      */
-    rejectQuery: boolean;
+  rejectQuery: boolean;
 }

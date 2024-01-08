@@ -5,18 +5,25 @@
   "main": "src/app.ts",
   "scripts": {
     "build": "rm -rf ./dist/ && tsc -b tsconfig.build.json",
-    "postbuild": "cp ./src/processors/MongoDbUserQueryPreprocessorResponse.ts ./dist/processors/",
     "dev": "nodemon src/app.ts",
     "start": "node dist/app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ./src --ext js,jsx,ts,tsx --report-unused-disable-directives"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@azure/openai": "^1.0.0-beta.10",
+    "@typescript-eslint/eslint-plugin": "^6.18.0",
     "express-slow-down": "^2.0.1",
     "mongodb-chatbot-server": "^0.3.1",
     "nodemon": "^3.0.2",
     "ts-node": "^10.9.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-jest": "^27.6.1",
+    "prettier": "^3.1.1"
   }
 }
