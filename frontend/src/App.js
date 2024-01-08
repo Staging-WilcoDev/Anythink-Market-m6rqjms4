@@ -1,27 +1,43 @@
 import './App.css';
 import Chatbot, {
-    FloatingActionButtonTrigger,
+    InputBarTrigger,
     ModalView,
 } from "mongodb-chatbot-ui";
 
+const suggestedPrompts = [
+    "Can you name a movie with a storyline set on the planet \"Mongo\"?",
+    "Can you give example of a bank robbery movie?",
+];
+
 function App() {
+    const containerStyle = {
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    };
+
     return (
         <div className="App">
-            <h1>
-                MongoDB AI Assistant
-            </h1>
-            <Chatbot serverBaseUrl={`${process.env.REACT_APP_BACKEND_URL}/api/v1`}>
-                <FloatingActionButtonTrigger text="My MongoDB AI"/>
-                <ModalView
-                    initialMessageText="Welcome to MongoDB Movie Expert AI Assistant. What can I help you with?"
-                    initialMessageSuggestedPrompts={[
-                        "Can you name a movie with a storyline set on the planet \"Mongo\"?",
-                        "Can you give example of a bank robbery movie?",
-                    ]}
-                />
-            </Chatbot>
+            <div style={containerStyle}>
+                <div style={{textAlign: 'center'}}>
+                    <h1>
+                        MongoDB AI Assistant
+                    </h1>
+                </div>
+
+                <Chatbot serverBaseUrl={`http://localhost:3000/api/v1`}>
+                        <InputBarTrigger suggestedPrompts={suggestedPrompts} />
+                    <ModalView
+                        initialMessageText="Welcome to MongoDB Movie Expert AI Assistant. What can I help you with?"
+                        initialMessageSuggestedPrompts={suggestedPrompts}
+                    />
+                </Chatbot>
+            </div>
         </div>
     );
+
+
 }
 
 

@@ -4,16 +4,19 @@
   "description": "",
   "main": "src/app.ts",
   "scripts": {
-    "build": "tsc -b",
-    "start": "node build/app.js",
-    "dev": "yarn build --watch & yarn start",
+    "build": "rm -rf ./dist/ && tsc -b tsconfig.build.json",
+    "postbuild": "cp ./src/processors/MongoDbUserQueryPreprocessorResponse.ts ./dist/processors/",
+    "dev": "nodemon src/app.ts",
+    "start": "node dist/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@azure/openai": "^1.0.0-beta.8",
+    "@azure/openai": "^1.0.0-beta.10",
     "express-slow-down": "^2.0.1",
-    "mongodb-chatbot-server": "^0.2.1"
+    "mongodb-chatbot-server": "^0.3.1",
+    "nodemon": "^3.0.2",
+    "ts-node": "^10.9.2"
   }
 }
