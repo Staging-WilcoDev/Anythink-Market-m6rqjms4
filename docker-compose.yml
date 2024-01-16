@@ -9,6 +9,7 @@ services:
       - NODE_ENV=development
       - PORT=3000
       - GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN=${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}
+      - ENGINE_WILCO_AI_URL=${ENGINE_WILCO_AI_URL}
 
     working_dir: /usr/src
     volumes:

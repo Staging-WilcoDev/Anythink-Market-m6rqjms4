@@ -1,3 +1,4 @@
+
 import "dotenv/config";
 const { OpenAIClient, AzureKeyCredential } = require("@azure/openai");
 import {
@@ -21,25 +22,29 @@ import {
   EmbedResult,
 } from "mongodb-chatbot-server";
 
+import {getEnvConfigInstance} from "./config";
+
 const MONGODB_CONNECTION_URI: string = process.env
   .MONGODB_CONNECTION_URI as string;
-const OPENAI_ENDPOINT: string = process.env.OPENAI_ENDPOINT as string;
 const VECTOR_SEARCH_INDEX_NAME: string = process.env
   .VECTOR_SEARCH_INDEX_NAME as string;
-const OPENAI_API_KEY: string = process.env.OPENAI_API_KEY as string;
-const OPENAI_EMBEDDING_DEPLOYMENT: string = process.env
-  .OPENAI_EMBEDDING_DEPLOYMENT as string;
 const MONGODB_DATABASE_NAME: string = process.env
   .MONGODB_DATABASE_NAME as string;
-const OPENAI_CHAT_COMPLETION_DEPLOYMENT: string = process.env
-  .OPENAI_CHAT_COMPLETION_DEPLOYMENT as string;
 
 class SimpleEmbedder implements Embedder {
+  openAiClient: any;
+  embeddingDeployment: string;
+
+  constructor(openAiClient, embeddingDeployment) {
+    this.openAiClient = openAiClient;
+    this.embeddingDeployment = embeddingDeployment;
+  }
+
   async embed(query: EmbedArgs): Promise<EmbedResult> {
     try {
-      const response = await openAiClient.getEmbeddings(
-        OPENAI_EMBEDDING_DEPLOYMENT,
-        [query.text],
+      const response = await this.openAiClient.getEmbeddings(
+        this.embeddingDeployment,
+        [query.text]
       );
       return { embedding: response.data[0].embedding };
     } catch (e) {
@@ -48,11 +53,6 @@ class SimpleEmbedder implements Embedder {
     }
   }
 }
-
-const openAiClient = new OpenAIClient(
-  OPENAI_ENDPOINT,
-  new AzureKeyCredential(OPENAI_API_KEY),
-);
 
 const systemPrompt: SystemPrompt = {
   role: "system",
@@ -87,69 +87,77 @@ ${originalUserMessage}
   };
 };
 
-const llm = makeOpenAiChatLlm({
-  openAiClient,
-  deployment: OPENAI_CHAT_COMPLETION_DEPLOYMENT,
-  openAiLmmConfigOptions: {
-    temperature: 0,
-    maxTokens: 1500,
-  },
-});
+const createApp = async () => {
+  const envConfig = await getEnvConfigInstance()
+  const openAiClient = new OpenAIClient(
+    envConfig.baseUrl,
+    new AzureKeyCredential(envConfig.apiKey)
+  );
 
-const dataStreamer = makeDataStreamer();
+  const llm = makeOpenAiChatLlm({
+    openAiClient,
+    deployment: envConfig.llmDeployment,
+    openAiLmmConfigOptions: {
+      temperature: 0,
+      maxTokens: 1500,
+    },
+  });
 
-const embeddedContentStore = makeMongoDbEmbeddedContentStore({
-  connectionUri: MONGODB_CONNECTION_URI,
-  databaseName: MONGODB_DATABASE_NAME,
-});
+  const embeddedContentStore = makeMongoDbEmbeddedContentStore({
+    connectionUri: MONGODB_CONNECTION_URI,
+    databaseName: MONGODB_DATABASE_NAME,
+  });
 
-const findContent = makeDefaultFindContent({
-  embedder: new SimpleEmbedder(),
-  store: embeddedContentStore,
-  findNearestNeighborsOptions: {
-    k: 5,
-    path: "embedding",
-    indexName: VECTOR_SEARCH_INDEX_NAME,
-    minScore: 0.9,
-  },
-});
+  const findContent = makeDefaultFindContent({
+    embedder: new SimpleEmbedder(openAiClient, envConfig.embeddingDeployment),
+    store: embeddedContentStore,
+    findNearestNeighborsOptions: {
+      k: 5,
+      path: "embedding",
+      indexName: VECTOR_SEARCH_INDEX_NAME,
+      minScore: 0.9,
+    },
+  });
+  const generateUserPrompt: GenerateUserPromptFunc = makeRagGenerateUserPrompt({
+    findContent,
+    makeUserMessage,
+    makeReferenceLinks: () => [],
+  });
 
-const generateUserPrompt: GenerateUserPromptFunc = makeRagGenerateUserPrompt({
-  findContent,
-  makeUserMessage,
-  makeReferenceLinks: () => [],
-});
+  const mongodb = new MongoClient(MONGODB_CONNECTION_URI);
 
-const mongodb = new MongoClient(MONGODB_CONNECTION_URI);
+  const conversations = makeMongoDbConversationsService(
+    mongodb.db(MONGODB_DATABASE_NAME),
+    systemPrompt
+  );
 
-const conversations = makeMongoDbConversationsService(
-  mongodb.db(MONGODB_DATABASE_NAME),
-  systemPrompt,
-);
+  const dataStreamer = makeDataStreamer();
 
-const config: AppConfig = {
-  conversationsRouterConfig: {
-    dataStreamer,
-    llm,
-    conversations,
-    generateUserPrompt,
-  },
-  maxRequestTimeoutMs: 30000,
+  const appConfig: AppConfig = {
+    conversationsRouterConfig: {
+      dataStreamer,
+      llm,
+      conversations,
+      generateUserPrompt,
+    },
+    maxRequestTimeoutMs: 30000,
+  };
+  return appConfig;
 };
 
 const PORT = process.env.PORT || 3000;
 
 const startServer = async () => {
   logger.info("Starting server...");
-  const app = await makeApp(config);
+
+  const appConfig = await createApp();
+  const app = await makeApp(appConfig);
   const server = app.listen(PORT, () => {
     logger.info(`Server listening on port: ${PORT}`);
   });
 
   process.on("SIGINT", async () => {
     logger.info("SIGINT signal received");
-    await mongodb.close();
-    await embeddedContentStore.close();
     await new Promise<void>((resolve, reject) => {
       server.close((error) => {
         error ? reject(error) : resolve();
