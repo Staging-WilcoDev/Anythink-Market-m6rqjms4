@@ -1,49 +1,61 @@
-version: "3.8"
+# build command: docker compose build
+# docker uses the .env file BY DEFAULT. Any other name and you'll have to specify it in the command line
+# docker compose --env-file FILENAME.env build
+
+# docker compose version
+version: '3.4'
+
+# Services
 services:
-  anythink-backend-node:
-    build: ./backend
-    container_name: anythink-backend-node
-    command: sh -c "cd backend && npm install && npm run build && npm run dev"
 
-    environment:
-      - NODE_ENV=development
-      - PORT=3000
-      - GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN=${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}
-      - ENGINE_WILCO_AI_URL=${ENGINE_WILCO_AI_URL}
+  # Nginx Service
+  nginx:
 
-    working_dir: /usr/src
-    volumes:
-      - ./:/usr/src/
-      - /usr/src/backend/node_modules
+    image: nginx:alpine
     ports:
-      - "3000:3000"
-
-  anythink-frontend-react:
-    build: ./frontend
-    container_name: anythink-frontend-react
-    command: sh -c "cd frontend && /wait-for-it.sh anythink-backend-node:3000 -t 120 --strict -- curl --head -X GET --retry 30 --retry-connrefused --retry-delay 1 anythink-backend-node:3000/api/ping && npm install && npm run dev"
-    environment:
-      - NODE_ENV=development
-      - PORT=3001
-      - REACT_APP_BACKEND_URL=${CODESPACE_BACKEND_URL:-http://localhost:3000}
-      - WDS_SOCKET_PORT=${CODESPACE_WDS_SOCKET_PORT:-3001}
-
-    working_dir: /usr/src
+      - 80:80
     volumes:
-      - ./:/usr/src/
-      - /usr/src/frontend/node_modules
-    ports:
-      - "3001:3001"
+      - ./src:/var/www/htdoc
+      - ./.docker/nginx/conf.d:/etc/nginx/conf.d
     depends_on:
-      - "anythink-backend-node"
+      - php
+      - mysql_service
 
-  anythink-ack:
-    image: public.ecr.aws/v0a2l7y2/wilco/anythink-ack:latest
-    container_name: anythink-ack
+  # PHP Service
+  php:    
+    build:
+      dockerfile: ./.docker/php/Dockerfile
+      args:
+        RUNTIME_PHP_IMAGE: php:8.2-fpm
+    # container-path
+    working_dir: /var/www/htdoc
+    command: sh -c "./init_repo.sh && php-fpm"
+    volumes:
+      - ./src:/var/www/htdoc
     environment:
-      - GITHUB_TOKEN=$GITHUB_TOKEN
-      - CODESPACE_NAME=$CODESPACE_NAME
-      - APP_NAME=MongoDB RAG Chat
+      - DATABASE_URL=mysql://root:rootpassword@mysql_service:3306/mydatabase
     depends_on:
-      - "anythink-frontend-react"
+      - mysql_service
 
+
+
+  # MySQL Service
+  mysql_service:
+    image: mysql:5.7
+
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: mydatabase
+
+
+#  redis:
+#      image: redis:latest
+#      ports:
+#        - "6379:6379"
+#      volumes:
+#        - ${REDIS_DATA_HOST_PATH}:${REDIS_DATA_CONTAINER_PATH}
+
+# Notes:
+#
+# From Docker Compose version 3.4 the name of the volume can be dynamically generated from environment variables placed in an .env file (this file has to be in the same folder as docker-compose.yml is).
+#
